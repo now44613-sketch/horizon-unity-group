@@ -48,13 +48,18 @@ export default function UserLogin() {
 
       if (authError) throw authError;
 
+      console.log('✓ User authenticated:', authData.user.id);
+
       // Check if user is admin
-      const { data: roleData } = await supabase
+      const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', authData.user.id)
         .eq('role', 'admin')
         .maybeSingle();
+
+      console.log('📋 Role check result:', roleData);
+      if (roleError) console.error('Role check error:', roleError);
 
       toast({
         title: 'Welcome!',
@@ -63,8 +68,10 @@ export default function UserLogin() {
 
       // Route based on role
       if (roleData) {
+        console.log('→ Routing to admin dashboard');
         navigate('/admin/dashboard');
       } else {
+        console.log('→ Routing to user dashboard');
         navigate('/dashboard');
       }
     } catch (error) {
