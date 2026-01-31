@@ -38,10 +38,11 @@ export default function UserLogin() {
         description: 'You have successfully logged in.',
       });
       navigate('/dashboard');
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Invalid credentials';
       toast({
         title: 'Login failed',
-        description: error.message || 'Invalid credentials',
+        description: message,
         variant: 'destructive',
       });
     } finally {
