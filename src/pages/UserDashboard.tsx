@@ -42,6 +42,8 @@ export default function UserDashboard() {
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/login');
+    } else if (user && !authLoading) {
+      fetchData();
     }
   }, [user, authLoading, navigate]);
 
