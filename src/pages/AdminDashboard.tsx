@@ -130,10 +130,11 @@ export default function AdminDashboard() {
       });
       setAddMemberOpen(false);
       setNewMemberEmail('');
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'An error occurred';
       toast({
         title: 'Error',
-        description: error.message,
+        description: message,
         variant: 'destructive',
       });
     } finally {

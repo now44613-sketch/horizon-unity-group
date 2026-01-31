@@ -45,13 +45,8 @@ export default function UserDashboard() {
     }
   }, [user, authLoading, navigate]);
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user]);
-
   const fetchData = async () => {
+    // Fetch data from database
     try {
       const [contribRes, profileRes] = await Promise.all([
         supabase
@@ -110,10 +105,11 @@ export default function UserDashboard() {
       });
       
       fetchData();
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to add contribution';
       toast({
         title: 'Error',
-        description: error.message || 'Failed to add contribution',
+        description: message,
         variant: 'destructive',
       });
     }

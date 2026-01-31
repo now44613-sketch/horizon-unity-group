@@ -67,10 +67,11 @@ export default function UserRegister() {
         description: 'Welcome to Chamaa. You can now log in.',
       });
       navigate('/login');
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Something went wrong';
       toast({
         title: 'Registration failed',
-        description: error.message || 'Something went wrong',
+        description: message,
         variant: 'destructive',
       });
     } finally {
