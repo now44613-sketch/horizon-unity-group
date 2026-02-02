@@ -11,9 +11,7 @@ import {
   LogOut,
   CheckCircle2,
   Clock,
-  UserPlus,
-  Eye,
-  Search
+  UserPlus
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -35,7 +33,6 @@ interface Member {
   phone_number: string | null;
   total_contributions: number;
   contribution_count: number;
-  balance_visible: boolean;
 }
 
 interface Contribution {
@@ -46,7 +43,6 @@ interface Contribution {
   created_at: string;
   profiles: {
     full_name: string;
-    balance_visible: boolean;
   } | null;
 }
 
@@ -58,7 +54,6 @@ export default function AdminDashboard() {
   const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [isAddingMember, setIsAddingMember] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -82,19 +77,15 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     try {
       // Fetch all profiles with their contribution totals
-      const { data: profilesData, error: profilesError } = await supabase
+      const { data: profilesData } = await supabase
         .from('profiles')
         .select('*');
 
-      if (profilesError) throw profilesError;
-
       // Fetch all contributions
-      const { data: contributionsData, error: contribError } = await supabase
+      const { data: contributionsData } = await supabase
         .from('contributions')
         .select('*')
         .order('contribution_date', { ascending: false });
-
-      if (contribError) throw contribError;
 
       if (profilesData && contributionsData) {
         const membersWithStats = profilesData.map(profile => {
@@ -107,23 +98,18 @@ export default function AdminDashboard() {
         });
         setMembers(membersWithStats);
 
-        // Get recent contributions with profile names and balance visibility
+        // Get recent contributions with profile names
         const recentWithNames = contributionsData.slice(0, 20).map(c => {
           const profile = profilesData.find(p => p.user_id === c.user_id);
           return {
             ...c,
-            profiles: profile ? { full_name: profile.full_name, balance_visible: profile.balance_visible } : null
+            profiles: profile ? { full_name: profile.full_name } : null
           };
         });
         setRecentContributions(recentWithNames);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast({
-        title: 'Error loading dashboard',
-        description: 'Failed to load member data. Please refresh the page.',
-        variant: 'destructive',
-      });
     } finally {
       setIsLoading(false);
     }
@@ -266,17 +252,6 @@ export default function AdminDashboard() {
               </DialogContent>
             </Dialog>
           </div>
-
-          {/* Search Box */}
-          <div className="mb-4 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search members by name or phone..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
           
           {members.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">No members yet.</p>
@@ -292,17 +267,8 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {members
-                    .filter(m => 
-                      m.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      m.phone_number?.includes(searchQuery)
-                    )
-                    .map((member) => (
-                    <tr 
-                      key={member.id} 
-                      className="border-b border-border last:border-0 hover:bg-muted/50 cursor-pointer"
-                      onClick={() => navigate(`/admin/member/${member.user_id}`)}
-                    >
+                  {members.map((member) => (
+                    <tr key={member.id} className="border-b border-border last:border-0">
                       <td className="py-3 px-2">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -310,15 +276,7 @@ export default function AdminDashboard() {
                               {member.full_name?.charAt(0) || 'M'}
                             </span>
                           </div>
-                          <div>
-                            <span className="font-medium">{member.full_name}</span>
-                            {!member.balance_visible && (
-                              <div className="inline-block ml-2 px-2 py-0.5 bg-muted text-xs rounded">
-                                <EyeOff className="w-3 h-3 inline mr-1" />
-                                Hidden
-                              </div>
-                            )}
-                          </div>
+                          <span className="font-medium">{member.full_name}</span>
                         </div>
                       </td>
                       <td className="py-3 px-2 text-muted-foreground text-sm">
@@ -368,12 +326,8 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                   </div>
-                  <span className="font-semibold">
-                    {contribution.profiles?.balance_visible ? (
-                      <span className="amount-positive">+KES {Number(contribution.amount).toLocaleString()}</span>
-                    ) : (
-                      <span className="text-muted-foreground">Hidden</span>
-                    )}
+                  <span className="font-semibold amount-positive">
+                    +KES {Number(contribution.amount).toLocaleString()}
                   </span>
                 </div>
               ))}
