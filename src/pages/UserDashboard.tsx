@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   Clock,
   Wallet,
-  EyeOff
+  EyeOff,
+  Eye
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -29,6 +30,7 @@ interface Contribution {
 interface Profile {
   full_name: string;
   phone_number: string | null;
+  balance_visible: boolean;
 }
 
 export default function UserDashboard() {
@@ -63,7 +65,7 @@ export default function UserDashboard() {
           .order('contribution_date', { ascending: false }),
         supabase
           .from('profiles')
-          .select('full_name, phone_number')
+          .select('full_name, phone_number, balance_visible')
           .eq('user_id', user!.id)
           .single()
       ]);
@@ -187,8 +189,19 @@ export default function UserDashboard() {
             </div>
           </div>
           <p className="stat-label mb-1">Your Total Savings</p>
-          <p className="text-4xl font-bold text-muted-foreground">••••••••••</p>
-          <p className="text-xs text-muted-foreground mt-3">Your balance is currently hidden by the admin. It will be revealed at the end of the cycle!</p>
+          <div className="flex items-center gap-4">
+            {profile?.balance_visible ? (
+              <p className="text-4xl font-bold amount-positive">KES {totalContributions.toLocaleString()}</p>
+            ) : (
+              <>
+                <EyeOff className="w-16 h-16 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">Hidden by admin</p>
+              </>
+            )}
+          </div>
+          {!profile?.balance_visible && (
+            <p className="text-xs text-muted-foreground mt-3">Your balance is currently hidden by the admin. It will be revealed at the end of the cycle!</p>
+          )}
         </div>
 
         {/* Quick Actions */}
@@ -223,7 +236,13 @@ export default function UserDashboard() {
             </div>
             <div>
               <p className="stat-label">Total Saved</p>
-              <p className="text-2xl font-bold text-muted-foreground">••••••••••</p>
+              <p className="text-2xl font-bold">
+                {profile?.balance_visible ? (
+                  <span className="amount-positive">KES {thisMonthTotal.toLocaleString()}</span>
+                ) : (
+                  <span className="text-muted-foreground">Hidden</span>
+                )}
+              </p>
             </div>
           </div>
         </div>
@@ -295,8 +314,12 @@ export default function UserDashboard() {
                       </p>
                     </div>
                   </div>
-                  <span className="font-semibold amount-positive">
-                    +KES {Number(contribution.amount).toLocaleString()}
+                  <span className="font-semibold">
+                    {profile?.balance_visible ? (
+                      <span className="amount-positive">+KES {Number(contribution.amount).toLocaleString()}</span>
+                    ) : (
+                      <span className="text-muted-foreground">Hidden</span>
+                    )}
                   </span>
                 </div>
               ))}

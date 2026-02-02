@@ -46,6 +46,7 @@ interface Contribution {
   created_at: string;
   profiles: {
     full_name: string;
+    balance_visible: boolean;
   } | null;
 }
 
@@ -81,15 +82,19 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     try {
       // Fetch all profiles with their contribution totals
-      const { data: profilesData } = await supabase
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('*');
 
+      if (profilesError) throw profilesError;
+
       // Fetch all contributions
-      const { data: contributionsData } = await supabase
+      const { data: contributionsData, error: contribError } = await supabase
         .from('contributions')
         .select('*')
         .order('contribution_date', { ascending: false });
+
+      if (contribError) throw contribError;
 
       if (profilesData && contributionsData) {
         const membersWithStats = profilesData.map(profile => {
@@ -102,18 +107,23 @@ export default function AdminDashboard() {
         });
         setMembers(membersWithStats);
 
-        // Get recent contributions with profile names
+        // Get recent contributions with profile names and balance visibility
         const recentWithNames = contributionsData.slice(0, 20).map(c => {
           const profile = profilesData.find(p => p.user_id === c.user_id);
           return {
             ...c,
-            profiles: profile ? { full_name: profile.full_name } : null
+            profiles: profile ? { full_name: profile.full_name, balance_visible: profile.balance_visible } : null
           };
         });
         setRecentContributions(recentWithNames);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      toast({
+        title: 'Error loading dashboard',
+        description: 'Failed to load member data. Please refresh the page.',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -358,8 +368,12 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                   </div>
-                  <span className="font-semibold amount-positive">
-                    +KES {Number(contribution.amount).toLocaleString()}
+                  <span className="font-semibold">
+                    {contribution.profiles?.balance_visible ? (
+                      <span className="amount-positive">+KES {Number(contribution.amount).toLocaleString()}</span>
+                    ) : (
+                      <span className="text-muted-foreground">Hidden</span>
+                    )}
                   </span>
                 </div>
               ))}
