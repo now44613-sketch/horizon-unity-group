@@ -36,34 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Get initial session first - this should be fast
-    const initializeAuth = async () => {
-      try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-        
-        if (!mounted) return;
-        
-        setSession(initialSession);
-        setUser(initialSession?.user ?? null);
-
-        if (initialSession?.user) {
-          const admin = await fetchIsAdmin(initialSession.user.id);
-          if (mounted) {
-            setIsAdmin(admin);
-          }
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    initializeAuth();
-
-    // Set up auth state listener for subsequent changes
+    // Set up auth state listener FIRST (before getSession)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         if (!mounted) return;
@@ -72,15 +45,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(newSession?.user ?? null);
 
         if (newSession?.user) {
-          const admin = await fetchIsAdmin(newSession.user.id);
-          if (mounted) {
-            setIsAdmin(admin);
-          }
+          // Use setTimeout to avoid potential deadlock with Supabase client
+          setTimeout(async () => {
+            if (!mounted) return;
+            const admin = await fetchIsAdmin(newSession.user.id);
+            if (mounted) {
+              setIsAdmin(admin);
+              setIsLoading(false);
+            }
+          }, 0);
         } else {
           setIsAdmin(false);
+          setIsLoading(false);
         }
       }
     );
+
+    // Then get initial session
+    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+      if (!mounted) return;
+      
+      setSession(initialSession);
+      setUser(initialSession?.user ?? null);
+
+      if (initialSession?.user) {
+        fetchIsAdmin(initialSession.user.id).then((admin) => {
+          if (mounted) {
+            setIsAdmin(admin);
+            setIsLoading(false);
+          }
+        });
+      } else {
+        setIsLoading(false);
+      }
+    }).catch((error) => {
+      console.error('Error getting session:', error);
+      if (mounted) {
+        setIsLoading(false);
+      }
+    });
 
     return () => {
       mounted = false;
