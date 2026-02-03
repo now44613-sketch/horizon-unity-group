@@ -11,21 +11,49 @@ export interface SMSPayload {
 const TEXTLOCAL_API_KEY = 'aky_39999NgB2tdhoSkk27QnUzSbQdO';
 const TEXTLOCAL_API_URL = 'https://api.textlocal.in/send/';
 
+// Format phone number for different countries
+const formatPhoneNumber = (phoneNumber: string): string | null => {
+  // Remove all non-digits
+  const cleanNumber = phoneNumber.replace(/\D/g, '');
+  
+  if (!cleanNumber || cleanNumber.length < 10) {
+    console.error('Invalid phone number format:', phoneNumber);
+    return null;
+  }
+
+  // Check if country code already present
+  if (cleanNumber.startsWith('254')) {
+    // Kenya
+    return cleanNumber;
+  } else if (cleanNumber.startsWith('91')) {
+    // India
+    return cleanNumber;
+  } else if (cleanNumber.startsWith('1')) {
+    // USA/Canada
+    return '1' + cleanNumber;
+  } else {
+    // Default to Kenya (254) if no country code detected
+    // Assumes 10-digit Kenyan number or removes leading 0
+    let formatted = cleanNumber;
+    if (formatted.startsWith('0')) {
+      formatted = formatted.substring(1);
+    }
+    if (formatted.length === 9) {
+      return '254' + formatted;
+    } else if (formatted.length === 10) {
+      return '254' + formatted;
+    }
+    return null;
+  }
+};
+
 export const sendSMS = async (payload: SMSPayload): Promise<boolean> => {
   try {
-    // Ensure phone number is in valid format (remove any non-digits and ensure it's a valid length)
-    const cleanPhoneNumber = payload.phoneNumber.replace(/\D/g, '');
+    const formattedNumber = formatPhoneNumber(payload.phoneNumber);
     
-    if (!cleanPhoneNumber || cleanPhoneNumber.length < 10) {
-      console.error('Invalid phone number format:', payload.phoneNumber);
+    if (!formattedNumber) {
+      console.error('Failed to format phone number:', payload.phoneNumber);
       return false;
-    }
-
-    // Format phone number for TextLocal (add country code if not present)
-    let formattedNumber = cleanPhoneNumber;
-    if (!formattedNumber.startsWith('91')) {
-      // Assuming Indian numbers - adjust as needed
-      formattedNumber = '91' + cleanPhoneNumber.slice(-10);
     }
 
     // Call TextLocal API to send SMS
