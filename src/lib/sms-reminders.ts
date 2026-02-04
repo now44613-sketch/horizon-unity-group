@@ -1,5 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
-
+// SMS Reminders - Placeholder for future SMS integration
 // Free SMS Service Configuration - Using Twilio Trial or similar
 // For free services, we can use:
 // 1. Twilio Trial (sends from trial account)
@@ -16,15 +15,7 @@ export const sendMissedDayReminder = async (
     const message = `Hi ${userName}! You have ${missedDays} day${missedDays > 1 ? 's' : ''} to catch up on. Click on any past date in your calendar on the Horizon Unit app to add a contribution. No penalties - contribute at your own pace!`;
     
     // Log the reminder attempt
-    await supabase
-      .from('sms_logs')
-      .insert({
-        phone_number: phoneNumber,
-        message: message,
-        message_type: 'missed_contribution',
-        status: 'sent'
-      })
-      .catch(err => console.error('Failed to log SMS reminder:', err));
+    console.log(`SMS reminder logged for ${phoneNumber}: ${message}`);
 
     // Send via free SMS service (implement based on service choice)
     return await sendViaFreeSMSService(phoneNumber, message);
@@ -42,15 +33,7 @@ export const sendContributionSuccessSMS = async (
   try {
     const message = `Great job ${userName}! Your KES ${amount.toLocaleString()} contribution has been recorded. Keep saving with Horizon Unit! 🎉`;
     
-    await supabase
-      .from('sms_logs')
-      .insert({
-        phone_number: phoneNumber,
-        message: message,
-        message_type: 'successful_contribution',
-        status: 'sent'
-      })
-      .catch(err => console.error('Failed to log SMS:', err));
+    console.log(`SMS contribution success logged for ${phoneNumber}: ${message}`);
 
     return await sendViaFreeSMSService(phoneNumber, message);
   } catch (error) {
@@ -67,15 +50,7 @@ export const sendAdminNotificationSMS = async (
   try {
     const message = `Hello ${userName}, you have a message from Horizon Unit Admin: ${messageText}`;
     
-    await supabase
-      .from('sms_logs')
-      .insert({
-        phone_number: phoneNumber,
-        message: message,
-        message_type: 'admin_notification',
-        status: 'sent'
-      })
-      .catch(err => console.error('Failed to log SMS:', err));
+    console.log(`SMS admin notification logged for ${phoneNumber}: ${message}`);
 
     return await sendViaFreeSMSService(phoneNumber, message);
   } catch (error) {

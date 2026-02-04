@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, differenceInDays, startOfDay } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { sendMissedDayReminder, sendContributionSuccessSMS } from '@/lib/sms-reminders';
+
 import logo from '@/assets/logo.png';
 
 interface Contribution {
@@ -40,8 +40,6 @@ interface Profile {
   daily_contribution_amount: number;
   balance_adjustment: number;
   missed_contributions: number;
-  sms_enabled?: boolean;
-  last_missed_reminder_sent?: string;
 }
 
 interface AdminMessage {
@@ -60,6 +58,7 @@ export default function UserDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showMonthlyAmount, setShowMonthlyAmount] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -85,7 +84,7 @@ export default function UserDashboard() {
           .order('contribution_date', { ascending: false }),
         supabase
           .from('profiles')
-          .select('full_name, phone_number, balance_visible, daily_contribution_amount, balance_adjustment, missed_contributions, sms_enabled, last_missed_reminder_sent')
+          .select('full_name, phone_number, balance_visible, daily_contribution_amount, balance_adjustment, missed_contributions')
           .eq('user_id', user!.id)
           .single(),
         supabase
@@ -99,42 +98,6 @@ export default function UserDashboard() {
       if (contribRes.data) setContributions(contribRes.data);
       if (profileRes.data) {
         setProfile(profileRes.data);
-        
-        // Send missed day reminder SMS if applicable
-        if (profileRes.data.sms_enabled && profileRes.data.phone_number) {
-          // Calculate missed days for this profile
-          const contributions = contribRes.data || [];
-          const today = startOfDay(new Date());
-          const yesterday = startOfDay(new Date(today.getTime() - 24 * 60 * 60 * 1000));
-          
-          const sortedByDate = [...contributions].sort((a, b) => 
-            new Date(b.contribution_date).getTime() - new Date(a.contribution_date).getTime()
-          );
-          
-          const lastContribDate = sortedByDate.length > 0 
-            ? startOfDay(parseISO(sortedByDate[0].contribution_date))
-            : null;
-          
-          let missedDays = 0;
-          if (lastContribDate && lastContribDate < yesterday) {
-            missedDays = differenceInDays(yesterday, lastContribDate);
-          }
-          
-          // Send reminder if there are missed days and we haven't already sent one today
-          if (missedDays > 0) {
-            const lastReminderDate = profileRes.data.last_missed_reminder_sent 
-              ? startOfDay(parseISO(profileRes.data.last_missed_reminder_sent))
-              : null;
-            
-            if (!lastReminderDate || lastReminderDate < today) {
-              await sendMissedDayReminder(
-                profileRes.data.phone_number,
-                missedDays,
-                profileRes.data.full_name
-              ).catch(err => console.error('SMS reminder sending failed:', err));
-            }
-          }
-        }
       }
       if (messagesRes.data) setMessages(messagesRes.data);
     } catch (error) {
@@ -198,15 +161,6 @@ export default function UserDashboard() {
         description: `KES ${contributionAmount.toLocaleString()} has been recorded for today.`,
       });
       
-      // Send SMS confirmation if enabled
-      if (profile?.sms_enabled && profile?.phone_number) {
-        await sendContributionSuccessSMS(
-          profile.phone_number,
-          contributionAmount,
-          profile.full_name
-        ).catch(err => console.error('SMS sending failed:', err));
-      }
-      
       fetchData();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to add contribution';
@@ -265,15 +219,6 @@ export default function UserDashboard() {
         title: 'Contribution added!',
         description: `KES ${dailyAmount.toLocaleString()} recorded for ${format(date, 'MMM d, yyyy')}.`,
       });
-      
-      // Send SMS confirmation if enabled
-      if (profile?.sms_enabled && profile?.phone_number) {
-        await sendContributionSuccessSMS(
-          profile.phone_number,
-          dailyAmount,
-          profile.full_name
-        ).catch(err => console.error('SMS sending failed:', err));
-      }
       
       setSelectedDate(null);
       fetchData();

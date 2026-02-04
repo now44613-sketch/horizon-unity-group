@@ -129,14 +129,14 @@ export default function MessageCenter({ adminId, members }: MessageCenterProps) 
 
         if (error) throw error;
 
-        // Fetch user's phone number and SMS preference to send SMS notification
+        // Fetch user's phone number for optional SMS notification
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('phone_number, sms_enabled, full_name')
+          .select('phone_number, full_name')
           .eq('user_id', selectedUserId)
-          .single();
+          .maybeSingle();
 
-        if (profileData?.sms_enabled && profileData?.phone_number) {
+        if (profileData?.phone_number) {
           await sendAdminNotificationSMS(
             profileData.phone_number,
             newMessage,
