@@ -150,106 +150,107 @@
              </div>
  
              {/* Quick Actions Grid */}
-             <div className="grid grid-cols-3 gap-3">
-               <button onClick={() => setActiveTab('members')} className="bg-gray-100 rounded-2xl p-4 flex flex-col items-center gap-2 hover:bg-gray-200 transition">
-                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                   <Users className="w-5 h-5 text-blue-600" />
-                 </div>
-                 <span className="text-xs font-semibold text-gray-900">Members</span>
-               </button>
-               <button onClick={() => setActiveTab('messages')} className="bg-gray-100 rounded-2xl p-4 flex flex-col items-center gap-2 hover:bg-gray-200 transition">
-                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                   <MessageSquare className="w-5 h-5 text-blue-600" />
-                 </div>
-                 <span className="text-xs font-semibold text-gray-900">Messages</span>
-               </button>
-               <button onClick={() => setActiveTab('overview')} className="bg-gray-100 rounded-2xl p-4 flex flex-col items-center gap-2 hover:bg-gray-200 transition">
-                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                   <BarChart3 className="w-5 h-5 text-blue-600" />
-                 </div>
-                 <span className="text-xs font-semibold text-gray-900">Reports</span>
-               </button>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <button onClick={() => setActiveTab('members')} className="bg-gray-100 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 hover:bg-gray-200 transition active:scale-95">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <Users className="w-5 h-5 text-blue-600" />
+                </div>
+                <span className="text-sm font-semibold text-gray-900">Members</span>
+              </button>
+              <button onClick={() => setActiveTab('messages')} className="bg-gray-100 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 hover:bg-gray-200 transition active:scale-95">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <MessageSquare className="w-5 h-5 text-blue-600" />
+                </div>
+                <span className="text-sm font-semibold text-gray-900">Messages</span>
+              </button>
              </div>
 
              {/* Stats Cards */}
-             <div className="space-y-3">
-               <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
-                 <div className="flex items-center justify-between mb-2">
-                   <span className="text-xs text-gray-600 font-medium">Active Members</span>
-                   <Users className="w-4 h-4 text-blue-600" />
-                 </div>
-                 <p className="text-3xl font-bold text-gray-900">{members.length}</p>
-               </div>
-               <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
-                 <div className="flex items-center justify-between mb-2">
-                   <span className="text-xs text-gray-600 font-medium">This Month</span>
-                   <TrendingUp className="w-4 h-4 text-green-600" />
-                 </div>
-                 <p className="text-3xl font-bold text-gray-900">KES {(thisMonthTotal / 1000).toFixed(0)}K</p>
-               </div>
-               <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
-                 <div className="flex items-center justify-between mb-2">
-                   <span className="text-xs text-gray-600 font-medium">Contributions</span>
-                   <Calendar className="w-4 h-4 text-blue-600" />
-                 </div>
-                 <p className="text-3xl font-bold text-gray-900">{thisMonthContribs.length}</p>
-               </div>
-             </div>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-gray-600 font-medium">Members</span>
+                  <Users className="w-4 h-4 text-blue-600" />
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{members.length}</p>
+              </div>
+              <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-gray-600 font-medium">This Month</span>
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                </div>
+                <p className="text-2xl font-bold text-gray-900">KES {(thisMonthTotal / 1000).toFixed(0)}K</p>
+              </div>
+              <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-gray-600 font-medium">Contributions</span>
+                  <Calendar className="w-4 h-4 text-blue-600" />
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{thisMonthContribs.length}</p>
+              </div>
+              <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-gray-600 font-medium">Per Member</span>
+                  <TrendingUp className="w-4 h-4 text-blue-600" />
+                </div>
+                <p className="text-2xl font-bold text-gray-900">KES {members.length > 0 ? (thisMonthTotal / members.length).toFixed(0) : 0}</p>
+              </div>
+            </div>
 
              {/* Tab Navigation */}
-             <div className="flex gap-2 bg-gray-100 p-1 rounded-full sticky top-0 z-10">
-               <button
-                 onClick={() => setActiveTab('overview')}
-                 className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all ${
-                   activeTab === 'overview' 
-                     ? 'bg-white text-gray-900 shadow-md' 
-                     : 'text-gray-600 hover:text-gray-900'
-                 }`}
-               >
-                 Overview
-               </button>
-               <button
-                 onClick={() => setActiveTab('members')}
-                 className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all ${
-                   activeTab === 'members' 
-                     ? 'bg-white text-gray-900 shadow-md' 
-                     : 'text-gray-600 hover:text-gray-900'
-                 }`}
-               >
-                 Members
-               </button>
-               <button
-                 onClick={() => setActiveTab('messages')}
-                 className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all ${
-                   activeTab === 'messages' 
-                     ? 'bg-white text-gray-900 shadow-md' 
-                     : 'text-gray-600 hover:text-gray-900'
-                 }`}
-               >
-                 Messages
-               </button>
-             </div>
+            <div className="flex gap-2 bg-gray-100 p-1 rounded-full sticky top-0 z-10 mb-4">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all ${
+                  activeTab === 'overview' 
+                    ? 'bg-white text-gray-900 shadow-md' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Overview
+              </button>
+              <button
+                onClick={() => setActiveTab('members')}
+                className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all ${
+                  activeTab === 'members' 
+                    ? 'bg-white text-gray-900 shadow-md' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Members
+              </button>
+              <button
+                onClick={() => setActiveTab('messages')}
+                className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all ${
+                  activeTab === 'messages' 
+                    ? 'bg-white text-gray-900 shadow-md' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Messages
+              </button>
+            </div>
 
              {/* Tab Content */}
-             <div className="space-y-3">
-               {activeTab === 'overview' && (
-                 <div className="bg-white border border-gray-100 rounded-2xl p-4">
-                   <RecentContributions contributions={recentContributions} />
-                 </div>
-               )}
+            <div>
+              {activeTab === 'overview' && (
+                <div>
+                  <RecentContributions contributions={recentContributions} />
+                </div>
+              )}
 
-               {activeTab === 'members' && (
-                 <div className="bg-white border border-gray-100 rounded-2xl p-4">
-                   <MemberManagement members={members} onRefresh={fetchData} adminId={user!.id} />
-                 </div>
-               )}
+              {activeTab === 'members' && (
+                <div>
+                  <MemberManagement members={members} onRefresh={fetchData} adminId={user!.id} />
+                </div>
+              )}
 
-               {activeTab === 'messages' && (
-                 <div className="bg-white border border-gray-100 rounded-2xl p-4">
-                   <MessageCenter adminId={user!.id} members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))} />
-                 </div>
-               )}
-             </div>
+              {activeTab === 'messages' && (
+                <div>
+                  <MessageCenter adminId={user!.id} members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))} />
+                </div>
+              )}
+            </div>
            </div>
          </div>
        </div>

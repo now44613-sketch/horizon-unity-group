@@ -236,8 +236,8 @@
                {profile?.full_name?.substring(0, 2).toUpperCase() || 'MN'}
              </div>
              {unreadMessages.length > 0 && (
-               <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white">
-                 {unreadMessages.length}
+               <div className="absolute -top-1 -right-1 w-5 h-5 bg-cyan-400 rounded-full border-2 border-white flex items-center justify-center">
+                 <div className="w-2 h-2 bg-white rounded-full"></div>
                </div>
              )}
            </div>
@@ -282,13 +282,19 @@
            {/* Quick Stats */}
            <div className="space-y-3 mb-6">
              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-               <p className="text-xs text-gray-600 font-medium mb-1">This Month</p>
-               <p className="text-xl font-bold text-gray-900">{thisMonthContributions.length}</p>
+               <div className="flex items-center justify-between mb-2">
+                 <span className="text-xs text-gray-600 font-medium">This Month</span>
+                 <TrendingUp className="w-4 h-4 text-blue-600" />
+               </div>
+               <p className="text-2xl font-bold text-gray-900">{thisMonthContributions.length}</p>
                <p className="text-xs text-gray-500 mt-1">KES {thisMonthContributions.reduce((sum, c) => sum + Number(c.amount), 0).toLocaleString()}</p>
              </div>
              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-               <p className="text-xs text-gray-600 font-medium mb-1">Daily Target</p>
-               <p className="text-xl font-bold text-gray-900">KES {dailyAmount}</p>
+               <div className="flex items-center justify-between mb-2">
+                 <span className="text-xs text-gray-600 font-medium">Daily Target</span>
+                 <Target className="w-4 h-4 text-green-600" />
+               </div>
+               <p className="text-2xl font-bold text-gray-900">KES {dailyAmount}</p>
                <p className="text-xs text-gray-500 mt-1">Next contribution</p>
              </div>
            </div>
@@ -300,16 +306,16 @@
                className="bg-gray-100 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 hover:bg-gray-200 transition active:scale-95"
              >
                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
-                 <Plus className="w-6 h-6 text-gray-900" />
+                 <Plus className="w-5 h-5 text-gray-900" />
                </div>
-               <span className="text-base font-semibold text-gray-900">Add Today</span>
+               <span className="text-sm font-semibold text-gray-900">Add Today</span>
              </button>
              
              <button className="bg-gray-100 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 hover:bg-gray-200 transition active:scale-95">
                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
-                 <History className="w-6 h-6 text-gray-900" />
+                 <History className="w-5 h-5 text-gray-900" />
                </div>
-               <span className="text-base font-semibold text-gray-900">History</span>
+               <span className="text-sm font-semibold text-gray-900">History</span>
              </button>
            </div>
 
@@ -424,19 +430,23 @@
          </div>
 
          {/* Bottom Action Buttons - Fixed */}
-         <div className="border-t border-gray-100 bg-white sticky bottom-0">
-           <div className="px-4 py-4 space-y-3">
-             <div className="grid grid-cols-2 gap-3">
+         <div className="bg-white border-t border-gray-200">
+           <div className="px-4 py-3">
+             <p className="text-center text-sm text-gray-600 mb-3">
+               Start your savings journey with <span className="font-semibold">daily contributions</span>. Tap the button below to get started.
+             </p>
+             
+             <div className="grid grid-cols-2 gap-3 pb-2">
                <button 
-                 className="py-3 px-6 bg-gray-100 rounded-full text-base font-semibold text-gray-900 hover:bg-gray-200 transition active:scale-95"
+                 className="py-4 px-6 bg-gray-100 rounded-full text-base font-semibold text-gray-900 hover:bg-gray-200 transition active:scale-95"
                >
-                 View Details
+                 View
                </button>
                <button 
                  onClick={handleAddContribution}
-                 className="py-3 px-6 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full text-base font-semibold text-white hover:from-blue-700 hover:to-blue-800 transition shadow-lg shadow-blue-500/30 active:scale-95"
+                 className="py-4 px-6 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full text-base font-semibold text-white hover:from-orange-600 hover:to-orange-700 transition shadow-lg shadow-orange-500/30 active:scale-95"
                >
-                 Add Now
+                 Add
                </button>
              </div>
            </div>
