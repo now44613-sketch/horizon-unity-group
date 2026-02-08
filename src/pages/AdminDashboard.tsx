@@ -89,8 +89,14 @@ export default function AdminDashboard() {
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/login');
+    try {
+      await signOut();
+      navigate('/admin/login', { replace: true });
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Force navigate even if signOut fails
+      navigate('/admin/login', { replace: true });
+    }
   };
 
   const currentMonth = new Date();
